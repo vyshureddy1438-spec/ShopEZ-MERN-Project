@@ -83,9 +83,11 @@ const products = [
   },
 ];
 
-const importData = async () => {
+const importData = async (shouldExit = true) => {
   try {
-    await connectDB();
+    if (shouldExit) {
+      await connectDB();
+    }
 
     await Product.deleteMany();
     await User.deleteMany({ email: 'seller@shopez.com' });
@@ -102,11 +104,21 @@ const importData = async () => {
 
     console.log('Demo data imported successfully!');
     console.log('Seller login -> email: seller@shopez.com | password: seller123');
-    process.exit();
+    if (shouldExit) {
+      process.exit();
+    }
   } catch (error) {
     console.error(`Error: ${error.message}`);
-    process.exit(1);
+    if (shouldExit) {
+      process.exit(1);
+    } else {
+      throw error;
+    }
   }
 };
 
-importData();
+if (require.main === module) {
+  importData();
+}
+
+module.exports = { importData, products };
